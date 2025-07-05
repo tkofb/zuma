@@ -1,0 +1,221 @@
+#include "futuresTrade.h"
+
+string getAssetCategory(string& line) {
+    string lineHolder = line;
+    string result = "";
+    for (size_t i = 0; i < 4; i++) {
+        int loc = lineHolder.find(',');
+        result = lineHolder.substr(0, loc);
+        lineHolder = lineHolder.substr(loc + 1, lineHolder.length());
+    }
+    
+    return result;
+}
+
+vector<string> parseFuturesTrade(const string& line) {
+    vector<string> result;
+    string field;
+    bool inQuotes = false;
+
+    for (size_t i = 0; i < line.size(); ++i) {
+        char c = line[i];
+
+        if (c == '"') {
+            inQuotes = !inQuotes;
+        } else if (c == ',' && !inQuotes) {
+            result.push_back(field);
+            field.clear();
+        } else {
+            field += c;
+        }
+    }
+
+    result.push_back(field);
+
+    return result;
+}
+
+
+class FuturesTrade {
+    string currency;
+    string account;
+    string symbol;
+    string datetime;
+    double quantity;
+    double transactionPrice;
+    double closingPrice;
+    double notionalValue;
+    double commission;
+    double basis;
+    double realizedProfitAndLoss;
+    double markToMarketProfitAndLoss;
+    string code;
+
+    public: 
+        FuturesTrade(vector<string> fields) {
+           currency = fields[4];
+           account = fields[5];
+           symbol = fields[6];
+           datetime = fields[7];
+           quantity = stod(fields[8]);
+           transactionPrice = stod(fields[9]);
+           closingPrice = stod(fields[10]);
+           notionalValue= stod(fields[11]);
+           commission = stod(fields[12]);
+           basis = stod(fields[13]);
+           realizedProfitAndLoss = stod(fields[14]);
+           markToMarketProfitAndLoss = stod(fields[15]);
+           code = fields[16];
+        }
+
+        double getRealizedProfitAndLoss() {
+            return realizedProfitAndLoss;
+        }
+
+        void print() const {
+            string side = quantity > 0 ? "BUY" : "SELL";
+            cout << "[" << datetime << "] "
+            << symbol << " | "
+            << side << " " << abs(quantity) << " @ " << transactionPrice << " | "
+            << "P/L: " << realizedProfitAndLoss << " | "
+            << "Code: " << code << endl;
+        }
+
+        string getCode() {
+            return code;
+        }
+};
+
+class FuturesInfo {
+    public: 
+        class Subtotal {
+            public:
+                double quantity;
+                double realizedProfitAndLoss;
+                double markToMarketProfitAndLoss;
+                string symbol;
+
+                Subtotal(string symbol, double quantity, double realized, double markToMarket)
+                        : symbol(symbol),
+                        quantity(quantity),
+                        realizedProfitAndLoss(realized),
+                        markToMarketProfitAndLoss(markToMarket) {}
+
+                double getQuantity() const { return quantity; }
+                double getRealizedPL() const { return realizedProfitAndLoss; }
+                double getMTMPL() const { return markToMarketProfitAndLoss; }
+                string getSymbol() const { return symbol; }
+
+                void print() const {
+                    cout << "Qty: " << quantity
+                        << " | Symbol: " << symbol
+                        << " | Realized P/L: " << realizedProfitAndLoss
+                        << " | MTM P/L: " << markToMarketProfitAndLoss << endl;
+                }
+        };
+
+    private: 
+        vector<FuturesTrade> trades;
+        vector<Subtotal> subtotals;
+        double realizedProfitAndLoss;
+        double markToMarketProfitAndLoss;
+        int profitableTrades = 0;
+        int unprofitableTrades = 0;
+        double gainsFromTrades = 0, lossesFromTrades = 0;
+        double avgWin = 0, avgLoss = 0;
+        int totalTrades;
+        double winRate;
+
+    public:
+        FuturesInfo(){};
+
+        FuturesInfo(vector<FuturesTrade> trades, vector<Subtotal> subtotals, double realized, double markToMarket) :
+            trades(trades),
+            subtotals(subtotals),
+            realizedProfitAndLoss(realized),
+            markToMarketProfitAndLoss(markToMarket) 
+        {
+            updateNumberOfProfitableTrades();
+        }
+
+        void updateNumberOfProfitableTrades() {
+            for (FuturesTrade trade: trades) {
+                double pnl = trade.getRealizedProfitAndLoss();
+                if(pnl < 0) {
+                    unprofitableTrades++;
+                    lossesFromTrades += pnl; 
+                } else {
+                    profitableTrades++;
+                    gainsFromTrades += pnl; 
+                }
+            }
+            if(unprofitableTrades != 0){
+                avgLoss = lossesFromTrades / unprofitableTrades;
+            }
+            if(profitableTrades != 0){
+                avgWin = gainsFromTrades / profitableTrades;
+            }
+            totalTrades = profitableTrades + unprofitableTrades;
+            winRate = double(profitableTrades) / totalTrades;
+        }
+
+        void print() {
+            for (FuturesTrade trade: trades) {
+                trade.print();
+            }
+            for (Subtotal subtotal: subtotals) {
+                subtotal.print();
+            }
+            cout << "Total"
+                << " | Realized P/L: " << realizedProfitAndLoss
+                << " | MTM P/L: " << markToMarketProfitAndLoss
+                << " | Win Rate: " << winRate 
+                << " | AVG Loss: " << avgLoss 
+                << " | AVG Win: " << avgWin 
+                << " | Profitable Trades: " << profitableTrades 
+                << " | Unprofitable Trades: " << unprofitableTrades << endl;
+        }
+
+};
+
+FuturesInfo parseFileForFuturesInfo(string filePath) {
+   ifstream iFile;
+   string line = "";
+
+   iFile.open(filePath);
+   vector<FuturesTrade> listOfFuturesTrades;
+   vector<FuturesInfo::Subtotal> listOfFuturesSubtotals;
+   FuturesInfo result;
+
+   while(getline(iFile, line)) {
+    size_t location = line.find(',');
+    string statementType = line.substr(0, location);
+
+    if (statementType == "Trades") {
+        string assetType = getAssetCategory(line);
+
+        if (assetType == "Futures") {
+            vector<string> parsedTrade = parseFuturesTrade(line);
+            double realized = stod(parsedTrade[14]);
+            double mark = stod(parsedTrade[15]);
+            
+            if (parsedTrade[2] == "Order") {
+                FuturesTrade trade(parsedTrade);
+
+                if (!trade.getCode().find('C')) {
+                    listOfFuturesTrades.push_back(trade);
+                }
+            } else if(parsedTrade[1] == "SubTotal") {
+                string symbol = parsedTrade[5];
+                double quantity = stod(parsedTrade[8]);
+                FuturesInfo::Subtotal subtotal(symbol, quantity, realized, mark);
+                listOfFuturesSubtotals.push_back(subtotal);
+            } else if(parsedTrade[1] == "Total") {
+                FuturesInfo info(listOfFuturesTrades, listOfFuturesSubtotals, realized, mark);
+                result = info;
+            }
+        }
+    }
+    }
+    return result;
+}
