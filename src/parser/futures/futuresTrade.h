@@ -25,49 +25,49 @@ class FuturesTrade {
     double markToMarketProfitAndLoss;
     string code;
 
-public:
-    FuturesTrade(vector<string> fields);
-    double getRealizedProfitAndLoss();
-    string getCode();
-    void print() const;
+    public:
+        FuturesTrade(vector<string> fields);
+        double getRealizedProfitAndLoss();
+        string getCode();
+        void print() const;
 };
 
 class FuturesInfo {
-public:
-    class Subtotal {
-        double quantity;
+    public:
+        class Subtotal {
+            double quantity;
+            double realizedProfitAndLoss;
+            double markToMarketProfitAndLoss;
+            string symbol;
+
+        public:
+            Subtotal(string symbol, double quantity, double realized, double markToMarket);
+            double getQuantity() const;
+            double getRealizedPL() const;
+            double getMTMPL() const;
+            string getSymbol() const;
+            void print() const;
+        };
+
+    private:
+        vector<FuturesTrade> trades;
+        vector<Subtotal> subtotals;
         double realizedProfitAndLoss;
         double markToMarketProfitAndLoss;
-        string symbol;
+        int profitableTrades;
+        int unprofitableTrades;
+        double gainsFromTrades;
+        double lossesFromTrades;
+        double avgWin;
+        double avgLoss;
+        int totalTrades;
+        double winRate;
 
     public:
-        Subtotal(string symbol, double quantity, double realized, double markToMarket);
-        double getQuantity() const;
-        double getRealizedPL() const;
-        double getMTMPL() const;
-        string getSymbol() const;
-        void print() const;
-    };
-
-private:
-    vector<FuturesTrade> trades;
-    vector<Subtotal> subtotals;
-    double realizedProfitAndLoss;
-    double markToMarketProfitAndLoss;
-    int profitableTrades;
-    int unprofitableTrades;
-    double gainsFromTrades;
-    double lossesFromTrades;
-    double avgWin;
-    double avgLoss;
-    int totalTrades;
-    double winRate;
-
-public:
-    FuturesInfo();
-    FuturesInfo(vector<FuturesTrade> trades, vector<Subtotal> subtotals, double realized, double markToMarket);
-    void updateNumberOfProfitableTrades();
-    void print();
+        FuturesInfo();
+        FuturesInfo(vector<FuturesTrade> trades, vector<Subtotal> subtotals, double realized, double markToMarket);
+        void updateNumberOfProfitableTrades();
+        void print();
 };
 
 FuturesInfo parseFileForFuturesInfo(string filePath);

@@ -1,16 +1,15 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cstring>
-#include <sstream>
 #include "parser/futures/futuresTrade.h"
+#include <string>
 
 using namespace std;
 
+int main(int argc, char * argv[]){
 
-int main() {
-   string filePath = "src\\data\\example.csv";
+   string filePath = "../src/data/example.csv";
+
+   // USE IF YOU ARE RUNNING IN ROOT LEVEL
+   // string filePath = "../src/data/example.csv";
+   
    FuturesInfo info = parseFileForFuturesInfo(filePath);
    info.print();
 
