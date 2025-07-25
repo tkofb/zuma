@@ -4,6 +4,38 @@
 using namespace ftxui;
 using namespace std;
 
+string makeNecessaryPaddingAdjustments(const string &str, int width) {
+  int len = int(str.length());
+  if (width < len) {
+    return str;
+  }
+
+  int diff = width - len;
+  int pad1 = diff / 2;
+  int pad2 = diff - pad1;
+  return string(pad1, ' ') + str + string(pad2, ' ');
+}
+
+vector<vector<string>> handlePaddingForText(vector<vector<string>> data) {
+  for (size_t col = 0; col < data.size(); col++) {
+    int maxElemLen = 0;
+
+    for (size_t row = 0; row < data[col].size(); row++) {
+      int stringLength = int(data[row][col].length());
+      string str = data[row][col];
+      maxElemLen = max(maxElemLen, stringLength);
+    }
+
+    for (size_t row = 0; row < data[col].size(); row++) {
+      string str = data[row][col];
+      string updatedString = makeNecessaryPaddingAdjustments(str, maxElemLen);
+      data[row][col] = updatedString;
+    }
+  }
+
+  return data;
+}
+
 Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
                                  int selected_row) {
   vector<vector<string>> data = {
@@ -17,6 +49,8 @@ Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
                     to_string(trade.getRealizedProfitAndLoss())});
   }
 
+  data = handlePaddingForText(data);
+
   vector<Element> row_elements;
   for (size_t i = 0; i < data.size(); ++i) {
     vector<Element> cells;
@@ -25,8 +59,7 @@ Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
       Element bordered = e | border;
 
       if ((int)i == selected_row) {
-        bordered =
-            bordered | bgcolor(Color::Blue) | color(Color::White); // Highlight
+        bordered = bordered | bgcolor(Color::Blue) | color(Color::White);
       }
       cells.push_back(bordered);
     }
