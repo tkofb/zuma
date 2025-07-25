@@ -8,8 +8,7 @@ int main(int argc, char * argv[]){
 
    string filePath = "../src/data/example.csv";
    FuturesInfo info = parseFileForFuturesInfo(filePath);
-   printHomepage();
-   info.print();
+   printHomepage(info);
 
    return 0;
 }
