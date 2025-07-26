@@ -56,7 +56,7 @@ string displayLeastSignificantDigit(string str) {
 
 Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
                                  int selected_row) {
-  vector<vector<string>> data = {{"Symbol", "Entry", "Signal", "Quantity",
+  vector<vector<string>> data = {{"Symbol", "Date", "Time", "Signal",
                                   "Entry Price", "Closing Price", "P&L"}};
 
   for (size_t i = 0; i < trades.size(); i++) {
@@ -64,14 +64,14 @@ Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
     string pnl = displayLeastSignificantDigit(
         to_string(trade.getRealizedProfitAndLoss()));
     string closingPrice =
-        displayLeastSignificantDigit(to_string(trade.getClosingPrice()));
+        '$' + displayLeastSignificantDigit(to_string(trade.getClosingPrice()));
     string entryPrice =
-        displayLeastSignificantDigit(to_string(trade.getEntryPrice()));
+        '$' + displayLeastSignificantDigit(to_string(trade.getEntryPrice()));
 
     vector<string> row = {trade.getSymbol(),
                           trade.getEntryDate(),
+                          trade.getEntryTime(),
                           trade.getSignal(),
-                          to_string(trade.getQuantity()),
                           entryPrice,
                           closingPrice,
                           pnl};

@@ -37,7 +37,6 @@ FuturesTrade::FuturesTrade(vector<string> fields) {
   currency = fields[4];
   account = fields[5];
   symbol = fields[6];
-  datetime = fields[7];
   quantity = stoi(fields[8]);
   transactionPrice = stod(fields[9]);
   closingPrice = stod(fields[10]);
@@ -49,6 +48,14 @@ FuturesTrade::FuturesTrade(vector<string> fields) {
   code = fields[16];
   signal =
       determineSignal(transactionPrice, closingPrice, realizedProfitAndLoss);
+
+  string datetime = fields[7];
+  string delimiter = ", ";
+  date = datetime.substr(0, datetime.find(delimiter));
+  time = datetime.substr(datetime.find(delimiter) + delimiter.length(),
+                         datetime.length());
+  cout << date << endl;
+  cout << time << endl;
 }
 
 double FuturesTrade::getRealizedProfitAndLoss() const {
@@ -68,7 +75,8 @@ string FuturesTrade::determineSignal(double entryPrice, double closingPrice,
   }
 }
 string FuturesTrade::getSignal() const { return signal; }
-string FuturesTrade::getEntryDate() const { return datetime; }
+string FuturesTrade::getEntryDate() const { return date; }
+string FuturesTrade::getEntryTime() const { return time; }
 string FuturesTrade::getAccount() const { return account; }
 int FuturesTrade::getQuantity() const { return abs(quantity); }
 double FuturesTrade::getEntryPrice() const { return transactionPrice; }
@@ -76,7 +84,7 @@ double FuturesTrade::getClosingPrice() const { return closingPrice; }
 
 void FuturesTrade::print() const {
   string side = quantity > 0 ? "BUY" : "SELL";
-  cout << "[" << datetime << "] " << symbol << " | " << side << " "
+  cout << "[" << date << ", " << time << "] " << symbol << " | " << side << " "
        << abs(quantity) << " @ " << transactionPrice << " | "
        << "P/L: " << realizedProfitAndLoss << " | "
        << "Code: " << code << endl;

@@ -15,7 +15,8 @@ class FuturesTrade {
   string account;
   string symbol;
   string signal;
-  string datetime;
+  string date;
+  string time;
   int quantity;
   double transactionPrice;
   double closingPrice;
@@ -37,6 +38,7 @@ public:
                          double realizedProfitAndLoss) const;
   string getSignal() const;
   string getEntryDate() const;
+  string getEntryTime() const;
   string getAccount() const;
   int getQuantity() const;
   double getEntryPrice() const;
