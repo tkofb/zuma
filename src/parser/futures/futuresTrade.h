@@ -14,8 +14,9 @@ class FuturesTrade {
   string currency;
   string account;
   string symbol;
+  string signal;
   string datetime;
-  double quantity;
+  int quantity;
   double transactionPrice;
   double closingPrice;
   double notionalValue;
@@ -32,9 +33,12 @@ public:
   void print() const;
 
   string getSymbol() const;
+  string determineSignal(double entryPrice, double closingPrice,
+                         double realizedProfitAndLoss) const;
+  string getSignal() const;
   string getEntryDate() const;
   string getAccount() const;
-  double getQuantity() const;
+  int getQuantity() const;
   double getEntryPrice() const;
   double getClosingPrice() const;
 };
@@ -42,15 +46,14 @@ public:
 class FuturesInfo {
 public:
   class Subtotal {
-    double quantity;
+    int quantity;
     double realizedProfitAndLoss;
     double markToMarketProfitAndLoss;
     string symbol;
 
   public:
-    Subtotal(string symbol, double quantity, double realized,
-             double markToMarket);
-    double getQuantity() const;
+    Subtotal(string symbol, int quantity, double realized, double markToMarket);
+    int getQuantity() const;
     double getRealizedPL() const;
     double getMTMPL() const;
     string getSymbol() const;

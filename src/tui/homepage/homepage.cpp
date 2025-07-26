@@ -17,36 +17,71 @@ string makeNecessaryPaddingAdjustments(const string &str, int width) {
 }
 
 vector<vector<string>> handlePaddingForText(vector<vector<string>> data) {
-  for (size_t col = 0; col < data.size(); col++) {
+  if (data.empty())
+    return data;
+
+  size_t num_cols = data[0].size();
+  size_t num_rows = data.size();
+
+  for (size_t col = 0; col < num_cols; col++) {
     int maxElemLen = 0;
 
-    for (size_t row = 0; row < data[col].size(); row++) {
-      int stringLength = int(data[row][col].length());
-      string str = data[row][col];
-      maxElemLen = max(maxElemLen, stringLength);
+    for (size_t row = 0; row < num_rows; row++) {
+      maxElemLen = max(maxElemLen, int(data[row][col].length()));
     }
 
-    for (size_t row = 0; row < data[col].size(); row++) {
-      string str = data[row][col];
-      string updatedString = makeNecessaryPaddingAdjustments(str, maxElemLen);
-      data[row][col] = updatedString;
+    for (size_t row = 0; row < num_rows; row++) {
+      data[row][col] =
+          makeNecessaryPaddingAdjustments(data[row][col], maxElemLen);
     }
   }
 
   return data;
 }
 
+string displayLeastSignificantDigit(string str) {
+  auto dot = str.find('.');
+  if (dot == string::npos)
+    return str;
+
+  str = str.substr(0, dot + 5);
+
+  while (!str.empty() && str.back() == '0')
+    str.pop_back();
+  if (!str.empty() && str.back() == '.')
+    str.pop_back();
+
+  return str;
+}
+
 Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
                                  int selected_row) {
-  vector<vector<string>> data = {
-      {"Symbol", "Entry", "Quantity", "Entry Price", "Closing Price", "P&L"}};
+  vector<vector<string>> data = {{"Symbol", "Entry", "Signal", "Quantity",
+                                  "Entry Price", "Closing Price", "P&L"}};
 
-  for (const FuturesTrade &trade : trades) {
-    data.push_back({trade.getSymbol(), trade.getEntryDate(),
-                    to_string(trade.getQuantity()),
-                    to_string(trade.getEntryPrice()),
-                    to_string(trade.getClosingPrice()),
-                    to_string(trade.getRealizedProfitAndLoss())});
+  for (size_t i = 0; i < trades.size(); i++) {
+    FuturesTrade trade = trades[i];
+    string pnl = displayLeastSignificantDigit(
+        to_string(trade.getRealizedProfitAndLoss()));
+    string closingPrice =
+        displayLeastSignificantDigit(to_string(trade.getClosingPrice()));
+    string entryPrice =
+        displayLeastSignificantDigit(to_string(trade.getEntryPrice()));
+
+    vector<string> row = {trade.getSymbol(),
+                          trade.getEntryDate(),
+                          trade.getSignal(),
+                          to_string(trade.getQuantity()),
+                          entryPrice,
+                          closingPrice,
+                          pnl};
+
+    if (row.size() != data[0].size()) {
+      std::cerr << "Row size mismatch! Skipping trade.\n";
+      continue;
+    }
+
+    data.push_back(row);
   }
 
   data = handlePaddingForText(data);

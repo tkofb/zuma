@@ -38,7 +38,7 @@ FuturesTrade::FuturesTrade(vector<string> fields) {
   account = fields[5];
   symbol = fields[6];
   datetime = fields[7];
-  quantity = stod(fields[8]);
+  quantity = stoi(fields[8]);
   transactionPrice = stod(fields[9]);
   closingPrice = stod(fields[10]);
   notionalValue = stod(fields[11]);
@@ -47,6 +47,8 @@ FuturesTrade::FuturesTrade(vector<string> fields) {
   realizedProfitAndLoss = stod(fields[14]);
   markToMarketProfitAndLoss = stod(fields[15]);
   code = fields[16];
+  signal =
+      determineSignal(transactionPrice, closingPrice, realizedProfitAndLoss);
 }
 
 double FuturesTrade::getRealizedProfitAndLoss() const {
@@ -54,6 +56,23 @@ double FuturesTrade::getRealizedProfitAndLoss() const {
 }
 
 string FuturesTrade::getCode() { return code; }
+vector<FuturesTrade> FuturesInfo::getTrades() const { return trades; }
+string FuturesTrade::getSymbol() const { return symbol; }
+string FuturesTrade::determineSignal(double entryPrice, double closingPrice,
+                                     double realizedProfitAndLoss) const {
+  if ((closingPrice >= entryPrice && realizedProfitAndLoss >= 0) ||
+      (closingPrice < entryPrice && realizedProfitAndLoss < 0)) {
+    return "BUY";
+  } else {
+    return "SELL";
+  }
+}
+string FuturesTrade::getSignal() const { return signal; }
+string FuturesTrade::getEntryDate() const { return datetime; }
+string FuturesTrade::getAccount() const { return account; }
+int FuturesTrade::getQuantity() const { return abs(quantity); }
+double FuturesTrade::getEntryPrice() const { return transactionPrice; }
+double FuturesTrade::getClosingPrice() const { return closingPrice; }
 
 void FuturesTrade::print() const {
   string side = quantity > 0 ? "BUY" : "SELL";
@@ -65,12 +84,12 @@ void FuturesTrade::print() const {
 
 // ========== FuturesInfo::Subtotal ==========
 
-FuturesInfo::Subtotal::Subtotal(string symbol, double quantity, double realized,
+FuturesInfo::Subtotal::Subtotal(string symbol, int quantity, double realized,
                                 double markToMarket)
     : symbol(symbol), quantity(quantity), realizedProfitAndLoss(realized),
       markToMarketProfitAndLoss(markToMarket) {}
 
-double FuturesInfo::Subtotal::getQuantity() const { return quantity; }
+int FuturesInfo::Subtotal::getQuantity() const { return quantity; }
 
 double FuturesInfo::Subtotal::getRealizedPL() const {
   return realizedProfitAndLoss;
@@ -129,14 +148,6 @@ void FuturesInfo::updateNumberOfProfitableTrades() {
                 : 0.0;
 }
 
-vector<FuturesTrade> FuturesInfo::getTrades() const { return trades; }
-string FuturesTrade::getSymbol() const { return symbol; }
-string FuturesTrade::getEntryDate() const { return datetime; }
-string FuturesTrade::getAccount() const { return account; }
-double FuturesTrade::getQuantity() const { return quantity; }
-double FuturesTrade::getEntryPrice() const { return transactionPrice; }
-double FuturesTrade::getClosingPrice() const { return closingPrice; }
-
 void FuturesInfo::print() {
   for (FuturesTrade &trade : trades) {
     trade.print();
@@ -187,7 +198,7 @@ FuturesInfo parseFileForFuturesInfo(string filePath) {
           }
         } else if (parsedTrade[1] == "SubTotal") {
           string symbol = parsedTrade[5];
-          double quantity = stod(parsedTrade[8]);
+          int quantity = stoi(parsedTrade[8]);
           FuturesInfo::Subtotal subtotal(symbol, quantity, realized, mark);
           listOfFuturesSubtotals.push_back(subtotal);
         } else if (parsedTrade[1] == "Total") {
