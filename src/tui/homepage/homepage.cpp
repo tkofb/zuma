@@ -61,8 +61,8 @@ Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
 
   for (size_t i = 0; i < trades.size(); i++) {
     FuturesTrade trade = trades[i];
-    string pnl = displayLeastSignificantDigit(
-        to_string(trade.getRealizedProfitAndLoss()));
+    string pnl = '$' + displayLeastSignificantDigit(
+                           to_string(trade.getRealizedProfitAndLoss()));
     string closingPrice =
         '$' + displayLeastSignificantDigit(to_string(trade.getClosingPrice()));
     string entryPrice =
@@ -77,7 +77,7 @@ Element buildNavigableTradeTable(const vector<FuturesTrade> &trades,
                           pnl};
 
     if (row.size() != data[0].size()) {
-      std::cerr << "Row size mismatch! Skipping trade.\n";
+      cerr << "Row size mismatch! Skipping trade.\n";
       continue;
     }
 

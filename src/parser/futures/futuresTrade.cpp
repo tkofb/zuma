@@ -54,8 +54,6 @@ FuturesTrade::FuturesTrade(vector<string> fields) {
   date = datetime.substr(0, datetime.find(delimiter));
   time = datetime.substr(datetime.find(delimiter) + delimiter.length(),
                          datetime.length());
-  cout << date << endl;
-  cout << time << endl;
 }
 
 double FuturesTrade::getRealizedProfitAndLoss() const {
