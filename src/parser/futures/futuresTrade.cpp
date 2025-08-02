@@ -33,7 +33,24 @@ vector<string> parseFuturesTrade(const string &line) {
 
 // ========== FuturesTrade ==========
 
+string createTradeID(const string &symbol, const string &date,
+                     const string &time, const string &account,
+                     const string &mtm_profit) {
+  string hash = std::to_string(std::hash<string>()(symbol)) +
+                std::to_string(std::hash<string>()(date)) +
+                std::to_string(std::hash<string>()(time)) +
+                std::to_string(std::hash<string>()(account)) +
+                std::to_string(std::hash<string>()(mtm_profit));
+
+  hash = std::to_string(std::hash<string>()(hash));
+  return hash;
+}
+
+FuturesTrade::addToDatabase(FuturesTrade trade) {}
+
 FuturesTrade::FuturesTrade(vector<string> fields) {
+  id = createTradeID(fields[6], fields[7], fields[8], fields[5], fields[15]);
+  cout << "Trade ID: " << id << endl;
   currency = fields[4];
   account = fields[5];
   symbol = fields[6];

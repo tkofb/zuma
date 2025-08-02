@@ -7,11 +7,9 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  connectToDatabase();
   std::string filePath = "../src/data/example.csv";
   FuturesInfo info = parseFileForFuturesInfo(filePath);
   printHomepage(info);
-  cout << "Test" << endl;
 
   return 0;
 }

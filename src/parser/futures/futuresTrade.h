@@ -11,6 +11,7 @@ string getAssetCategory(string &line);
 vector<string> parseFuturesTrade(const string &line);
 
 class FuturesTrade {
+  string id;
   string currency;
   string account;
   string symbol;
