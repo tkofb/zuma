@@ -33,6 +33,7 @@ public:
   double getRealizedProfitAndLoss() const;
   string getCode();
   void print() const;
+  void addToDatabase(FuturesTrade trade);
 
   string getSymbol() const;
   string determineSignal(double entryPrice, double closingPrice,

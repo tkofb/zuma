@@ -46,7 +46,7 @@ string createTradeID(const string &symbol, const string &date,
   return hash;
 }
 
-FuturesTrade::addToDatabase(FuturesTrade trade) {}
+void FuturesTrade::addToDatabase(FuturesTrade trade) {}
 
 FuturesTrade::FuturesTrade(vector<string> fields) {
   id = createTradeID(fields[6], fields[7], fields[8], fields[5], fields[15]);
