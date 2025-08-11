@@ -1,8 +1,4 @@
-#include "../../parser/futures/futuresTrade.h"
-#include "../dotenvParser/dotenvParser.h"
-#include <fmt/core.h>
-#include <iostream>
-#include <pqxx/pqxx>
+#include "databaseFunctions.h"
 
 using namespace std;
 
@@ -34,26 +30,55 @@ void printDatabase() {
     }
 }
 
-void addTradeToDatabase(string assetType, FuturesTrade trade) {
-    string connectionString = createConnectionRequest();
-
-    cout << connectionString << endl;
+void getTradeIdsFromDatabase(set<string>& ids) {
+    string           connectionString = createConnectionRequest();
     pqxx::connection connectionObject(connectionString.c_str());
-    cout << connectionObject.is_open() << endl;
-
-    pqxx::work   worker(connectionObject);
-    stringstream stmt;
-
-    stmt << "INSERT INTO trades VALUES ('" << trade.getID() << "','" << assetType << "','"
-         << trade.getSymbol() << "','" << trade.getAccount() << "','" << trade.getQuantity()
-         << "','" << trade.getEntryPrice() << "','" << trade.getClosingPrice() << "','"
-         << trade.getRealizedProfitAndLoss() << "','" << trade.getMarkToMarketProfitAndLoss()
-         << "','" << trade.getCode() << "','" << trade.getSignal() << "','" << trade.getEntryDate()
-         << "','" << trade.getEntryTime() << "');";
+    pqxx::work       worker(connectionObject);
+    string           stmt = "SELECT id FROM trades;";
 
     try {
+        pqxx::result res = worker.exec(stmt);
 
-        pqxx::result addTradeResponse = worker.exec(stmt.str());
+        for (auto const& row : res) {
+            for (auto const& field : row) {
+                ids.insert(field.c_str());
+            }
+        }
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return;
+    }
+}
+
+void updateDatabase(vector<FuturesTrade> trades) {
+    set<string> ids;
+    getTradeIdsFromDatabase(ids);
+    string           connectionString = createConnectionRequest();
+    pqxx::connection connectionObject(connectionString.c_str());
+    pqxx::work       worker(connectionObject);
+
+    for (string i : ids) {
+        cout << i << endl;
+    }
+
+    for (FuturesTrade trade : trades) {
+        if (ids.find(trade.getID()) == ids.end()) {
+            addTradeToDatabase("Futures", trade, worker);
+        }
+    }
+
+    worker.commit();
+}
+
+void addTradeToDatabase(string assetType, FuturesTrade trade, pqxx::work& worker) {
+    try {
+        pqxx::result addTradeResponse = worker.exec_params(
+            "INSERT INTO trades VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, "
+            "$11, $12, $13)",
+            trade.getID(), assetType, trade.getSymbol(), trade.getAccount(), trade.getQuantity(),
+            trade.getEntryPrice(), trade.getClosingPrice(), trade.getRealizedProfitAndLoss(),
+            trade.getMarkToMarketProfitAndLoss(), trade.getCode(), trade.getSignal(),
+            trade.getEntryDate(), trade.getEntryTime());
         worker.commit();
 
     } catch (const std::exception& e) {

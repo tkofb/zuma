@@ -45,18 +45,17 @@ string createTradeID(const string& symbol, const string& date, const string& tim
 }
 
 FuturesTrade::FuturesTrade(vector<string> fields) {
-    id = createTradeID(fields[6], fields[7], fields[8], fields[5], fields[15]);
-    cout << "Trade ID: " << id << endl;
-    currency                  = fields[4];
-    account                   = fields[5];
-    symbol                    = fields[6];
-    quantity                  = stoi(fields[8]);
-    transactionPrice          = stod(fields[9]);
-    closingPrice              = stod(fields[10]);
-    notionalValue             = stod(fields[11]);
-    commission                = stod(fields[12]);
-    basis                     = stod(fields[13]);
-    realizedProfitAndLoss     = stod(fields[14]);
+    id                    = createTradeID(fields[6], fields[7], fields[8], fields[5], fields[15]);
+    currency              = fields[4];
+    account               = fields[5];
+    symbol                = fields[6];
+    quantity              = stoi(fields[8]);
+    transactionPrice      = stod(fields[9]);
+    closingPrice          = stod(fields[10]);
+    notionalValue         = stod(fields[11]);
+    commission            = stod(fields[12]);
+    basis                 = stod(fields[13]);
+    realizedProfitAndLoss = stod(fields[14]);
     markToMarketProfitAndLoss = stod(fields[15]);
     code                      = fields[16];
     signal = determineSignal(transactionPrice, closingPrice, realizedProfitAndLoss);

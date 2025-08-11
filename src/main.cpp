@@ -10,10 +10,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
     std::string filePath = "../src/data/example.csv";
     FuturesInfo info     = parseFileForFuturesInfo(filePath);
-    for (FuturesTrade const& trade : info.getTrades()) {
-        addTradeToDatabase("Futures", trade);
-    }
-    printDatabase();
+    updateDatabase(info.getTrades());
     printHomepage(info);
 
     return 0;
