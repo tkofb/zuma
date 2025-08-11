@@ -25,6 +25,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 add_executable(zuma ${SOURCES})
 find_package(libpqxx CONFIG REQUIRED)
 find_library(PQ_LIB pq REQUIRED)
+
+find_package(fmt CONFIG REQUIRED)
  
 target_link_libraries(zuma
   PRIVATE ftxui::screen
@@ -32,6 +34,7 @@ target_link_libraries(zuma
   PRIVATE ftxui::component
   PRIVATE libpqxx::pqxx
   PRIVATE ${PQ_LIB}
+  PRIVATE fmt::fmt
 )
 
 

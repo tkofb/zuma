@@ -6,7 +6,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-string dotenv(string &key) {
+string dotenv(string key) {
   fs::path dotenvPath = fs::current_path() / ".env";
 
   if (!fs::exists(dotenvPath)) {

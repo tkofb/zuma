@@ -1,1 +1,6 @@
-string dotenv(string &key);
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string dotenv(string key);
