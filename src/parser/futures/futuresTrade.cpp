@@ -73,7 +73,7 @@ double FuturesTrade::getMarkToMarketProfitAndLoss() const {
     return markToMarketProfitAndLoss;
 }
 
-string FuturesTrade::getCode() {
+string FuturesTrade::getCode() const {
     return code;
 }
 vector<FuturesTrade> FuturesInfo::getTrades() const {

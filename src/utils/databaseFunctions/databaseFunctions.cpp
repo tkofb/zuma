@@ -57,10 +57,6 @@ void updateDatabase(vector<FuturesTrade> trades) {
     pqxx::connection connectionObject(connectionString.c_str());
     pqxx::work       worker(connectionObject);
 
-    for (string i : ids) {
-        cout << i << endl;
-    }
-
     for (FuturesTrade trade : trades) {
         if (ids.find(trade.getID()) == ids.end()) {
             addTradeToDatabase("Futures", trade, worker);
@@ -72,18 +68,21 @@ void updateDatabase(vector<FuturesTrade> trades) {
 
 void addTradeToDatabase(string assetType, FuturesTrade trade, pqxx::work& worker) {
     try {
-        pqxx::result addTradeResponse = worker.exec_params(
-            "INSERT INTO trades VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, "
-            "$11, $12, $13)",
-            trade.getID(), assetType, trade.getSymbol(), trade.getAccount(), trade.getQuantity(),
-            trade.getEntryPrice(), trade.getClosingPrice(), trade.getRealizedProfitAndLoss(),
-            trade.getMarkToMarketProfitAndLoss(), trade.getCode(), trade.getSignal(),
-            trade.getEntryDate(), trade.getEntryTime());
+        pqxx::params params;
+        params.append({trade.getID(), assetType, trade.getSymbol(), trade.getAccount(),
+                       trade.getQuantity(), trade.getEntryPrice(), trade.getClosingPrice(),
+                       trade.getRealizedProfitAndLoss(), trade.getMarkToMarketProfitAndLoss(),
+                       trade.getCode(), trade.getSignal(), trade.getEntryDate(),
+                       trade.getEntryTime()});
+
+        pqxx::result addTradeResponse =
+            worker.exec("INSERT INTO trades VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, "
+                        "$11, $12, $13)",
+                        params);
         worker.commit();
 
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
-        std::cout << "Exception on statement:[" << stmt.str() << "]\n";
         return;
     }
 }

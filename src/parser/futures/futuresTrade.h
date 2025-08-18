@@ -11,6 +11,7 @@ string         getAssetCategory(string& line);
 vector<string> parseFuturesTrade(const string& line);
 
 class FuturesTrade {
+  public:
     string id;
     string currency;
     string account;
@@ -32,7 +33,7 @@ class FuturesTrade {
     FuturesTrade(vector<string> fields);
     double getRealizedProfitAndLoss() const;
     double getMarkToMarketProfitAndLoss() const;
-    string getCode();
+    string getCode() const;
     void   print() const;
 
     string getID() const;
