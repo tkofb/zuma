@@ -30,6 +30,35 @@ void printDatabase() {
     }
 }
 
+void updateJournalEntry(const FuturesTrade& trade, const JournalEntry& journal) {
+    string           connectionString = createConnectionRequest();
+    pqxx::connection connectionObject(connectionString.c_str());
+    pqxx::work       worker(connectionObject);
+
+    try {
+        // Generate a unique ID for the journal entry (could be trade ID or UUID).
+        std::string entryID = trade.getID(); // Or generate UUID if preferred
+
+        pqxx::params params;
+        params.append({entryID, journal.title ? *journal.title : "",
+                       journal.notes ? *journal.notes : "", journal.lesson ? *journal.lesson : ""});
+
+        worker.exec("INSERT INTO journal_entries (id, title, notes, lessons) "
+                    "VALUES ($1, $2, $3, $4) "
+                    "ON CONFLICT (id) DO UPDATE SET "
+                    "title = EXCLUDED.title, "
+                    "notes = EXCLUDED.notes, "
+                    "lessons = EXCLUDED.lessons",
+                    params);
+
+        worker.commit();
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error updating journal entry: " << e.what() << std::endl;
+        return;
+    }
+}
+
 void getTradeIdsFromDatabase(set<string>& ids) {
     string           connectionString = createConnectionRequest();
     pqxx::connection connectionObject(connectionString.c_str());

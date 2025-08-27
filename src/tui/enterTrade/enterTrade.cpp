@@ -5,6 +5,19 @@
 #include <thread>
 
 using namespace ftxui;
+
+JournalEntry::JournalEntry(shared_ptr<string> title, shared_ptr<string> notes,
+                           shared_ptr<string> lesson) {
+    this->title  = std::move(title);
+    this->notes  = std::move(notes);
+    this->lesson = std::move(lesson);
+}
+
+void exitLoop(const JournalEntry& journal, const FuturesTrade& trade, ScreenInteractive& screen) {
+    updateJournalEntry(trade, journal);
+    screen.Exit();
+}
+
 ftxui::Component buildEnterTradeComponent(const FuturesTrade& trade, PageState& state,
                                           ftxui::ScreenInteractive& screen) {
     auto title          = std::make_shared<std::string>();
@@ -59,7 +72,8 @@ ftxui::Component buildEnterTradeComponent(const FuturesTrade& trade, PageState& 
             if (blink_thread->joinable())
                 blink_thread->join();
             state.nextPage = Page::Homepage;
-            screen.Exit();
+            JournalEntry journal(title, notes, lesson);
+            exitLoop(journal, trade, screen);
             return true;
         }
         if (event.is_character()) {
