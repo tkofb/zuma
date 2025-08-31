@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../parser/futures/futuresTrade.h"
+#include "../../utils/databaseFunctions/databaseFunctions.h"
+#include "journalEntry.h"
 #include <ftxui/component/captured_mouse.hpp>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_base.hpp>

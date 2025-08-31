@@ -79,6 +79,26 @@ void getTradeIdsFromDatabase(set<string>& ids) {
     }
 }
 
+void getJournalEntry(set<string>& ids) {
+    string           connectionString = createConnectionRequest();
+    pqxx::connection connectionObject(connectionString.c_str());
+    pqxx::work       worker(connectionObject);
+    string           stmt = "SELECT id FROM trades;";
+
+    try {
+        pqxx::result res = worker.exec(stmt);
+
+        for (auto const& row : res) {
+            for (auto const& field : row) {
+                ids.insert(field.c_str());
+            }
+        }
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return;
+    }
+}
+
 void updateDatabase(vector<FuturesTrade> trades) {
     set<string> ids;
     getTradeIdsFromDatabase(ids);

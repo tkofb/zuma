@@ -29,9 +29,9 @@ void runUI(FuturesInfo info) {
         switch (state.nextPage) {
         case Page::Homepage:
             pageComponent = buildHomepageComponent(info, state, screen);
-            // pageComponent = renderer;
             break;
         case Page::TradeDetail:
+
             pageComponent =
                 buildEnterTradeComponent(info.getTrades()[state.tradeIndex], state, screen);
             break;

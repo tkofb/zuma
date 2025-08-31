@@ -37,4 +37,8 @@ target_link_libraries(zuma
   PRIVATE fmt::fmt
 )
 
+target_include_directories(zuma
+  PRIVATE ${PROJECT_SOURCE_DIR}/include
+  )
+
 
